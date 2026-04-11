@@ -51,7 +51,7 @@ DramaReader/
 ### 1. Clone or download the project
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/abupraise/drama-reader
 cd DramaReader
 ```
 
@@ -96,7 +96,7 @@ Copy-Item .env.example .env
 Then edit `.env`:
 
 ```env
-ANTHROPIC_API_KEY=your_real_key_here
+ANTHROPIC_API_KEY=api_key_here
 ```
 
 ### 5. Add sound effects
@@ -202,7 +202,6 @@ Check that:
 
 ## License and assets
 
-- Application code: your choice of open-source license
 - Voice generation: performed through the free `edge-tts` package
 - Sound effects: use properly attributed Creative Commons files where required
 
