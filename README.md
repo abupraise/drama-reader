@@ -6,7 +6,7 @@ DramaReader is a free, open-source Streamlit app that turns documents or pasted 
 
 - Accepts **PDF**, **TXT**, **DOCX**, or raw pasted text
 - Extracts readable text from uploaded documents
-- Automatically summarises long text above **500 words** using Anthropic Claude
+- Automatically summarises long text above **500 words** using Google Gemini
 - Rewrites source content into a marked dramatic script with:
   - `[VOICE: narrator]`
   - `[VOICE: character_male]`
@@ -44,7 +44,7 @@ DramaReader/
 
 - Python **3.10+**
 - `ffmpeg` installed locally, or provided by Hugging Face Spaces through `packages.txt`
-- An **Anthropic API key** for summarisation and dramatisation
+- A **Google Gemini API key** for summarisation and dramatisation
 
 ## Local setup
 
@@ -79,7 +79,7 @@ pip install -r requirements.txt
 
 ### 4. Configure environment variables
 
-Copy `.env.example` to `.env` and add your Anthropic API key.
+Copy `.env.example` to `.env` and add your Gemini API key as `GEMINI_API_KEY`.
 
 #### macOS / Linux
 
@@ -96,7 +96,7 @@ Copy-Item .env.example .env
 Then edit `.env`:
 
 ```env
-ANTHROPIC_API_KEY=api_key_here
+GEMINI_API_KEY=api_key_here
 ```
 
 ### 5. Add sound effects
@@ -113,7 +113,7 @@ streamlit run app.py
 ## How to use
 
 1. Start the app.
-2. Enter your Anthropic API key in the sidebar.
+2. Enter your Gemini API key in the sidebar.
 3. Upload a PDF, TXT, or DOCX file, or paste text into the input box.
 4. Click **Extract / Refresh Text**.
 5. Review and edit the extracted text if needed.
@@ -154,7 +154,7 @@ Upload the full project including:
 
 In the Space settings, add:
 
-- `ANTHROPIC_API_KEY` as a repository secret
+- `GEMINI_API_KEY` as a repository secret
 
 You can also leave the app to accept the key from the sidebar instead.
 
@@ -192,7 +192,7 @@ Some PDFs are image-based scans. This app does not perform OCR. Use a text-based
 
 The app falls back to the default voices if dynamic voice retrieval fails.
 
-### Anthropic errors
+### Gemini errors
 
 Check that:
 

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from anthropic import Anthropic
+import google.generativeai as genai
 
-from .summariser import extract_plain_text_from_anthropic_response
+from .summariser import extract_plain_text_from_gemini_response
 from .utils import clean_text
 
 
-DRAMATISATION_MODEL = "claude-sonnet-4-20250514"
+DRAMATISATION_MODEL = "gemini-2.5-flash"
 
 DRAMATISATION_SYSTEM_PROMPT = """You transform plain text into a dramatic audio production script.
 Rules:
@@ -24,7 +24,11 @@ def dramatise_text(text: str, api_key: str) -> str:
     if not cleaned:
         raise ValueError("Cannot dramatise empty text.")
 
-    client = Anthropic(api_key=api_key)
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel(
+        model_name=DRAMATISATION_MODEL,
+        system_instruction=DRAMATISATION_SYSTEM_PROMPT,
+    )
     user_prompt = (
         "Rewrite the following text as a dramatic audio script. "
         "Use only these voice markers: [VOICE: narrator], [VOICE: character_male], [VOICE: character_female]. "
@@ -35,15 +39,12 @@ def dramatise_text(text: str, api_key: str) -> str:
         f"TEXT:\n{cleaned}"
     )
 
-    response = client.messages.create(
-        model=DRAMATISATION_MODEL,
-        max_tokens=1800,
-        temperature=0.7,
-        system=DRAMATISATION_SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": user_prompt}],
+    response = model.generate_content(
+        user_prompt,
+        generation_config={"temperature": 0.7, "max_output_tokens": 1800},
     )
 
-    script = clean_text(extract_plain_text_from_anthropic_response(response))
+    script = clean_text(extract_plain_text_from_gemini_response(response))
     if not script:
         raise ValueError("The dramatisation step returned empty content.")
     return script

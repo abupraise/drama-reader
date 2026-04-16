@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from anthropic import Anthropic
+import google.generativeai as genai
 
 from .utils import clean_text, word_count
 
 
-SUMMARY_MODEL = "claude-sonnet-4-20250514"
+SUMMARY_MODEL = "gemini-2.5-flash"
 SUMMARY_THRESHOLD_WORDS = 500
 
 
@@ -21,22 +21,23 @@ def summarise_text_if_needed(text: str, api_key: str) -> tuple[str, bool]:
     if word_count(cleaned) <= SUMMARY_THRESHOLD_WORDS:
         return cleaned, False
 
-    client = Anthropic(api_key=api_key)
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel(
+        model_name=SUMMARY_MODEL,
+        system_instruction=SUMMARY_SYSTEM_PROMPT,
+    )
     prompt = (
         "Summarise the following text to about 250-400 words while preserving the core meaning, "
         "names, facts, chronology, and emotional tone. Return only the summary.\n\n"
         f"TEXT:\n{cleaned}"
     )
 
-    response = client.messages.create(
-        model=SUMMARY_MODEL,
-        max_tokens=900,
-        temperature=0.3,
-        system=SUMMARY_SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": prompt}],
+    response = model.generate_content(
+        prompt,
+        generation_config={"temperature": 0.3, "max_output_tokens": 900},
     )
 
-    summary = extract_plain_text_from_anthropic_response(response)
+    summary = extract_plain_text_from_gemini_response(response)
     summary = clean_text(summary)
     if not summary:
         raise ValueError("The summarisation step returned empty content.")
@@ -44,9 +45,17 @@ def summarise_text_if_needed(text: str, api_key: str) -> tuple[str, bool]:
 
 
 
-def extract_plain_text_from_anthropic_response(response) -> str:
+def extract_plain_text_from_gemini_response(response) -> str:
+    text = getattr(response, "text", None)
+    if text:
+        return text.strip()
+
     chunks = []
-    for block in getattr(response, "content", []):
-        if getattr(block, "type", None) == "text":
-            chunks.append(block.text)
+    for candidate in getattr(response, "candidates", []) or []:
+        content = getattr(candidate, "content", None)
+        for part in getattr(content, "parts", []) or []:
+            part_text = getattr(part, "text", None)
+            if part_text:
+                chunks.append(part_text)
+
     return "\n".join(chunks).strip()

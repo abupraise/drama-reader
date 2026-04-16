@@ -29,7 +29,7 @@ st.set_page_config(page_title="DramaReader", page_icon="🎭", layout="wide")
 
 def init_session_state() -> None:
     defaults = {
-        "anthropic_api_key": os.getenv("ANTHROPIC_API_KEY", ""),
+        "gemini_api_key": os.getenv("GEMINI_API_KEY", ""),
         "available_voices": [],
         "source_text": "",
         "processed_text": "",
@@ -61,12 +61,12 @@ with st.sidebar:
     )
 
     api_key_value = st.text_input(
-        "Anthropic API key",
+        "Gemini API key",
         type="password",
-        value=st.session_state["anthropic_api_key"],
+        value=st.session_state["gemini_api_key"],
         help="Used for summarisation and script dramatisation. Stored only in this session unless set in your environment.",
     )
-    st.session_state["anthropic_api_key"] = api_key_value.strip()
+    st.session_state["gemini_api_key"] = api_key_value.strip()
 
     st.markdown("### Voice selection")
     narrator_voice = st.selectbox(
@@ -216,14 +216,14 @@ with tab_audio:
 if generate_button:
     try:
         source_text = st.session_state.get("source_text", "").strip()
-        api_key = st.session_state.get("anthropic_api_key", "").strip()
+        api_key = st.session_state.get("gemini_api_key", "").strip()
 
         if not source_text:
             st.error("Please provide or extract some text before generating drama.")
             st.stop()
 
         if not api_key:
-            st.error("Please provide your Anthropic API key in the sidebar.")
+            st.error("Please provide your Gemini API key in the sidebar.")
             st.stop()
 
         log_lines = []
